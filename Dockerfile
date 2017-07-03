@@ -1,19 +1,11 @@
-# This Dockerfile was generated from templates/Dockerfile.j2
-{% set tarball = 'logstash-%s.tar.gz' % elastic_version -%}
-{% if staging_build_num -%}
-{%   set url_root = 'https://staging.elastic.co/%s/downloads/logstash' % version_tag -%}
-{%   set pack_url = 'https://staging.elastic.co/%s/downloads/logstash-plugins' % version_tag -%}
-{% else -%}
-{%   set url_root = 'https://artifacts.elastic.co/downloads/logstash' -%}
-{%   set pack_url = 'https://artifacts.elastic.co/downloads/logstash-plugins' -%}
-{% endif -%}
-
-
 FROM centos:7
-LABEL maintainer "Elastic Docker Team <docker@elastic.co>"
+LABEL maintainer "Jens Mittag <kontakt@jensmittag.de>"
 
-# Install Java and the "which" command, which is needed by Logstash's shell
-# scripts.
+# Version configuration
+ARG LOGSTASH_VERSION=5.4.3
+ARG LOGSTASH_PACK_URL=https://artifacts.elastic.co/downloads/logstash-plugins
+
+# Install Java and the "which" command, which is needed by Logstash's shell scripts.
 RUN yum update -y && yum install -y java-1.8.0-openjdk-devel which && \
     yum clean all
 
@@ -24,9 +16,9 @@ RUN groupadd --gid 1000 logstash && \
       logstash
 
 # Add Logstash itself.
-RUN curl -Lo - {{ url_root }}/{{ tarball }} | \
+RUN curl -Lo - https://artifacts.elastic.co/downloads/logstash/logstash-$LOGSTASH_VERSION.tar.gz | \
     tar zxf - -C /usr/share && \
-    mv /usr/share/logstash-{{ elastic_version }} /usr/share/logstash && \
+    mv /usr/share/logstash-$LOGSTASH_VERSION /usr/share/logstash && \
     chown --recursive logstash:logstash /usr/share/logstash/ && \
     ln -s /usr/share/logstash /opt/logstash
 
@@ -48,10 +40,10 @@ RUN chmod 0755 /usr/local/bin/docker-entrypoint
 
 USER logstash
 
-RUN cd /usr/share/logstash && LOGSTASH_PACK_URL={{ pack_url }} logstash-plugin install x-pack
+RUN cd /usr/share/logstash && LOGSTASH_PACK_URL=$LOGSTASH_PACK_URL logstash-plugin install x-pack
+RUN cd /usr/share/logstash && LOGSTASH_PACK_URL=$LOGSTASH_PACK_URL logstash-plugin install logstash-input-gelf
+RUN cd /usr/share/logstash && LOGSTASH_PACK_URL=$LOGSTASH_PACK_URL logstash-plugin install logstash-input-beats
 
 ADD env2yaml/env2yaml /usr/local/bin/
-
-EXPOSE 9600 5044
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]

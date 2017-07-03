@@ -1,8 +1,6 @@
-[![Build Status](https://travis-ci.org/elastic/logstash-docker.svg?branch=master)](https://travis-ci.org/elastic/logstash-docker)
-
 ## Description
 
-This repository contains the official [Logstash][logstash] Docker image from
+This repository contains a custom built [Logstash][logstash] Docker image, based on the official image by
 [Elastic][elastic].
 
 Documentation can be found on the [Elastic website](https://www.elastic.co/guide/en/logstash/current/docker.html).
@@ -10,9 +8,9 @@ Documentation can be found on the [Elastic website](https://www.elastic.co/guide
 [logstash]: https://www.elastic.co/products/logstash
 [elastic]: https://www.elastic.co/
 
-## Supported Docker versions
+## Available images on Dockerhub  
 
-The images have been tested on Docker 17.03.1-ce
+See https://hub.docker.com/r/m00re/logstash/
 
 ## Requirements
 A full build and test requires:
@@ -20,10 +18,29 @@ A full build and test requires:
 * GNU Make
 * Python 3.5 with Virtualenv
 
-## Contributing, issues and testing
+## Differences compared to official image
 
-Acceptance tests for the image are located in the `test` directory, and can
-be invoked with `make test`.
+* This image includes the following plugins:
+  * GELF input plugin: https://github.com/logstash-plugins/logstash-input-gelf
+  * Beats input plugin: https://github.com/logstash-plugins/logstash-input-beats
+* The build process has been simplified - you only need Docker to build your own image.
+
+## Building the image
+
+Building this image is divided into two steps:
+
+1. Building a small helper called ```env2yml``` that is later responsible for the mapping of environment variables to 
+YAML variables.
+   ```
+   $ docker build ./env2yaml/ -t golang:env2yaml
+   $ docker run --rm -i -v ${PWD}/env2yaml:/usr/local/src/env2yaml:Z golang:env2yaml
+   ``` 
+2. Building the logstash image itself.
+   ```
+   $ docker build . -t m00re/logstash:5.4.3
+   ```
+
+## Additional remarks
 
 This image is built on [Centos 7][centos-7].
 
