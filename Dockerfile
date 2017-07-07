@@ -40,8 +40,7 @@ RUN chmod 0755 /usr/local/bin/docker-entrypoint
 
 USER logstash
 
-RUN cd /usr/share/logstash && LOGSTASH_PACK_URL=$LOGSTASH_PACK_URL logstash-plugin install x-pack
-RUN cd /usr/share/logstash && LOGSTASH_PACK_URL=$LOGSTASH_PACK_URL logstash-plugin install logstash-input-gelf
+# Install Beats plugin
 RUN cd /usr/share/logstash && LOGSTASH_PACK_URL=$LOGSTASH_PACK_URL logstash-plugin install logstash-input-beats
 
 ADD env2yaml/env2yaml /usr/local/bin/

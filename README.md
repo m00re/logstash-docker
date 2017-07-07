@@ -21,7 +21,6 @@ A full build and test requires:
 ## Differences compared to official image
 
 * This image includes the following plugins:
-  * GELF input plugin: https://github.com/logstash-plugins/logstash-input-gelf
   * Beats input plugin: https://github.com/logstash-plugins/logstash-input-beats
 * The build process has been simplified - you only need Docker to build your own image.
 
