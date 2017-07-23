@@ -23,6 +23,10 @@ A full build and test requires:
 * This image includes the following plugins:
   * Beats input plugin: https://github.com/logstash-plugins/logstash-input-beats
 * The build process has been simplified - you only need Docker to build your own image.
+* The SSL key passhrase of the Beats input plugin can be configured via environment variable 
+```INPUT_BEATS_SSL_KEY_PASSPHRASE```. The injection is performed at runtime, prior to starting the Logstash instance. 
+Injection is performed using the regular expression ```ssl_key_passphrase\s*=>\s*\".*\"``` on the file 
+```/usr/share/logstash/pipeline/logstash.conf``` (take a look into the examples folder for a working configuration).
 
 ## Building the image
 

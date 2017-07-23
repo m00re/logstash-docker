@@ -6,8 +6,19 @@
 # host system.
 env2yaml /usr/share/logstash/config/logstash.yml
 
+# Copy the configuration file to a temporary folder
+cp /usr/share/logstash/pipeline/logstash.conf /tmp/logstash.conf
+chmod 600 /tmp/logstash.conf
+
+# Inject the SSL Key Passphrase property (if set via environment variable)
+if [ -n "$INPUT_BEATS_SSL_KEY_PASSPHRASE" ]; then
+  echo "Injecting SSL key passphrase into /tmp/logstash.conf"
+  sed -i "s/ssl_key_passphrase\s*=>\s*\".*\"/ssl_key_passphrase => \"$INPUT_BEATS_SSL_KEY_PASSPHRASE\"/g" /tmp/logstash.conf
+  unset INPUT_BEATS_SSL_KEY_PASSPHRASE
+fi
+
 if [[ -z $1 ]] || [[ ${1:0:1} == '-' ]] ; then
-  exec logstash "$@"
+  exec logstash -f /tmp/logstash.conf "$@"
 else
   exec "$@"
 fi
